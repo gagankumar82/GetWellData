@@ -6,6 +6,11 @@ export class standardfield implements ComponentFramework.StandardControl<IInputs
      * Empty constructor.
      */
     private _inputElement: HTMLInputElement;
+    private _buttonElement: HTMLButtonElement;
+    private _spinnerElement: HTMLDivElement;
+    private _container: HTMLDivElement;
+    private _context: ComponentFramework.Context<IInputs>;
+    private _notifyOutputChanged: () => void;
     constructor() {
         // Empty
     }
@@ -24,9 +29,30 @@ export class standardfield implements ComponentFramework.StandardControl<IInputs
         state: ComponentFramework.Dictionary,
         container: HTMLDivElement
     ): void {
-        // Add control initialization code
-        
+        this._context = context;
+        this._notifyOutputChanged = notifyOutputChanged;
+        this._container = container;
 
+        // Input element to capture rpc_wellapi value
+        this._inputElement = document.createElement("input");
+        this._inputElement.type = "text";
+        this._inputElement.value = context.parameters.rpc_wellapi.raw || "";
+        this._inputElement.addEventListener("input", () => {
+            this._notifyOutputChanged();
+        });
+        container.appendChild(this._inputElement);
+
+        // Button element with search icon
+        this._buttonElement = document.createElement("button");
+        this._buttonElement.innerText = "\uD83D\uDD0D Get Well Data"; // magnifying glass icon
+        this._buttonElement.addEventListener("click", () => this.onButtonClick());
+        container.appendChild(this._buttonElement);
+
+        // Spinner element shown during API call
+        this._spinnerElement = document.createElement("div");
+        this._spinnerElement.innerText = "Fetching well details, just a moment...";
+        this._spinnerElement.style.display = "none";
+        container.appendChild(this._spinnerElement);
     }
 
 
@@ -35,8 +61,10 @@ export class standardfield implements ComponentFramework.StandardControl<IInputs
      * @param context The entire property bag available to control via Context Object; It contains values as set up by the customizer mapped to names defined in the manifest, as well as utility functions
      */
     public updateView(context: ComponentFramework.Context<IInputs>): void {
-        // Add code to update control view
-      
+        this._context = context;
+        if (this._inputElement) {
+            this._inputElement.value = context.parameters.rpc_wellapi.raw || "";
+        }
     }
 
     /**
@@ -44,11 +72,46 @@ export class standardfield implements ComponentFramework.StandardControl<IInputs
      * @returns an object based on nomenclature defined in manifest, expecting object[s] for property marked as "bound" or "output"
      */
     public getOutputs(): IOutputs {
-       console.log("getOutputs");
-        
-        return {
-            
+       return {
+           rpc_wellapi: this._inputElement ? this._inputElement.value : ""
+       };
+    }
+
+    private onButtonClick(): void {
+        if (!this._context || !this._inputElement) {
+            return;
+        }
+
+        this._spinnerElement.style.display = "block";
+
+        const request: any = {
+            rpc_wellapi: this._inputElement.value,
+            getMetadata: () => ({
+                boundParameter: null,
+                parameterTypes: {
+                    rpc_wellapi: { typeName: "Edm.String", structuralProperty: 1 }
+                },
+                operationType: 0,
+                operationName: "rpc_getWellDetails"
+            })
         };
+
+        this._context.webAPI.execute(request)
+            .then((response: any) => {
+                if (response.ok) {
+                    return response.json();
+                }
+                return Promise.reject(response);
+            })
+            .then((data: any) => {
+                console.log("Action success", data);
+            })
+            .catch((error: any) => {
+                console.error("Action failed", error);
+            })
+            .finally(() => {
+                this._spinnerElement.style.display = "none";
+            });
     }
 
     /**

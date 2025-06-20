@@ -4,6 +4,11 @@ export declare class standardfield implements ComponentFramework.StandardControl
      * Empty constructor.
      */
     private _inputElement;
+    private _buttonElement;
+    private _spinnerElement;
+    private _container;
+    private _context;
+    private _notifyOutputChanged;
     constructor();
     /**
      * Used to initialize the control instance. Controls can kick off remote server calls and other initialization actions here.
@@ -24,6 +29,7 @@ export declare class standardfield implements ComponentFramework.StandardControl
      * @returns an object based on nomenclature defined in manifest, expecting object[s] for property marked as "bound" or "output"
      */
     getOutputs(): IOutputs;
+    private onButtonClick;
     /**
      * Called when the control is to be removed from the DOM tree. Controls should use this call for cleanup.
      * i.e. cancelling any pending remote calls, removing listeners, etc.
