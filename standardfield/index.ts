@@ -1,4 +1,3 @@
-import { Console } from "console";
 import { IInputs, IOutputs } from "./generated/ManifestTypes";
 
 export class standardfield implements ComponentFramework.StandardControl<IInputs, IOutputs> {
