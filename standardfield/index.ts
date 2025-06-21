@@ -96,7 +96,7 @@ export class standardfield implements ComponentFramework.StandardControl<IInputs
             })
         };
 
-        this._context.webAPI.execute(request)
+        (this._context.webAPI as any).execute(request)
             .then((response: any) => {
                 if (response.ok) {
                     return response.json();
