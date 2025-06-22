@@ -1,6 +1,6 @@
 import { IInputs, IOutputs } from "./generated/ManifestTypes";
 
-export class standardfield implements ComponentFramework.StandardControl<IInputs, IOutputs> {
+export class standardfield implements ComponentFramework.StandardControl<HTMLElement,HTMLElement, IInputs, IOutputs> {
     /**
      * Empty constructor.
      */
@@ -8,7 +8,7 @@ export class standardfield implements ComponentFramework.StandardControl<IInputs
     private _buttonElement: HTMLButtonElement;
     private _spinnerElement: HTMLDivElement;
     private _container: HTMLDivElement;
-    private _context: ComponentFramework.Context<IInputs>;
+    private _context: ComponentFramework.Context<any,IInputs>;
     private _notifyOutputChanged: () => void;
     constructor() {
         // Empty
@@ -23,7 +23,7 @@ export class standardfield implements ComponentFramework.StandardControl<IInputs
      * @param container If a control is marked control-type='standard', it will receive an empty div element within which it can render its content.
      */
     public init(
-        context: ComponentFramework.Context<IInputs>,
+        context: ComponentFramework.Context<any,IInputs>,
         notifyOutputChanged: () => void,
         state: ComponentFramework.Dictionary,
         container: HTMLDivElement
@@ -59,7 +59,7 @@ export class standardfield implements ComponentFramework.StandardControl<IInputs
      * Called when any value in the property bag has changed. This includes field values, data-sets, global values such as container height and width, offline status, control metadata values such as label, visible, etc.
      * @param context The entire property bag available to control via Context Object; It contains values as set up by the customizer mapped to names defined in the manifest, as well as utility functions
      */
-    public updateView(context: ComponentFramework.Context<IInputs>): void {
+    public updateView(context: ComponentFramework.Context<any,IInputs>): void {
         this._context = context;
         if (this._inputElement) {
             this._inputElement.value = context.parameters.rpc_wellapi.raw || "";
